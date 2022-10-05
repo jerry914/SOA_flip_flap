@@ -7,9 +7,17 @@ module TsvBuddy
   # take_tsv: converts a String with TSV data into @data
   # parameter: tsv - a String in TSV format
   def take_tsv(tsv)
-    rows = tsv.split(NEWLINE).map { |row| row.chomp.split(TAB) }
+    rows = tsv.split(NEWLINE).map { |row| split_tab(row) }
     headers = rows.first
-    @data = rows.drop(1).map { |col| headers.zip(col).to_h }
+    @data = rows.drop(1).map { |column| named_values(headers, column) }
+  end
+
+  def split_tab(str)
+    str.chomp.split(TAB)
+  end
+
+  def named_values(headers, column)
+    headers.zip(column).to_h
   end
 
   # to_tsv: converts @data into tsv string
@@ -20,8 +28,8 @@ module TsvBuddy
   end
 
   def to_2d_tsv(data)
-    header = [data.first.keys]
+    header = data.first.keys
     content = data.map(&:values)
-    header.concat(content)
+    content.unshift(header)
   end
 end
